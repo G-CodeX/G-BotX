@@ -32,6 +32,7 @@ class Client(commands.Cog):
         """
         members = await self.CalculateMembers(guild_id)
         await self.MembersUpdate(members, channel_id)
+        PrintEx("Updated Status")
         return
         
     @commands.Cog.listener()
@@ -46,7 +47,7 @@ class Client(commands.Cog):
                 PrintEx(f"Error connecting to {VC.name}: {e}")
         else:
             PrintEx(f"Channel with ID {Config.VOICE} not found.")
-
+        self.UpdateStatus.start(Config.GUILD, Config.STATUS_CHANNEL)
         # Activity
         members = await self.CalculateMembers(guild_id= Config.GUILD)  # You should replace this with the actual member count
         activity = discord.Activity(type=discord.ActivityType.watching, name=f"👤{members} Members")

@@ -106,6 +106,8 @@ class Achivements(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         try:
+            if member.bot:
+                return
             result = GetSqlResult(f"SELECT * FROM users WHERE user_id = {member.id}")
             if not result:
                 sql_query(f"INSERT INTO `users` (`serial`, `guild_id`, `user_id`, `username`, `total_messages`, `total_voice`, `level`, `xp`) VALUES (NULL, '{member.guild.id}', '{member.id}', '{member.global_name}', '0', '0', '0', '0');")

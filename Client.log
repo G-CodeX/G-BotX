@@ -4089,3 +4089,14 @@
 [16:32:0]       'UPDATE users SET xp = 1054, level = 1, total_voice = 10.1  WHERE serial = 3' this query is executed.
 [16:32:7]       G-CodeX got the query result of 'SELECT * FROM users WHERE user_id = 805808173385515021'
 [16:32:8]       'UPDATE users SET xp = 1055, level = 1, total_voice = 10.2  WHERE serial = 3' this query is executed.
+[17:16:34]       G-CodeX is activated.
+[17:18:22]       G-CodeX got the query result of 'SELECT * FROM users WHERE user_id = 927906857614462996'
+[17:18:25]       G-CodeX got the query result of 'SELECT * FROM users WHERE user_id = 927906857614462996'
+[17:18:26]       G-CodeX got the query result of 'SELECT level FROM users WHERE serial = 12'
+[17:18:27]       G-CodeX got the query result of 'SELECT * FROM users WHERE user_id = 927906857614462996'
+[17:18:28]       G-CodeX got the query result of 'SELECT xp FROM users WHERE serial = 12'
+[17:18:31]       G-CodeX got the query result of 'SELECT * FROM users WHERE user_id = 927906857614462996'
+[17:18:32]       G-CodeX got the query result of 'SELECT total_voice FROM users WHERE serial = 12'
+[17:18:32]       G-CodeX is activated.
+[17:19:22]       G-CodeX is activated.
+[17:20:41]       G-CodeX is activated.
