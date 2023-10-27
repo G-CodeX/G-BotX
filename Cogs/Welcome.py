@@ -27,7 +27,7 @@ class Welcome(commands.Cog):
         else:
             return PrintEx(f"Wrong Channel ID cannot update members. ID: ({channel_id})")
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
         # Update status on member join
         members = await self.CalculateMembers(Config.GUILD)
         await self.MembersUpdate(members, Config.STATUS_CHANNEL)

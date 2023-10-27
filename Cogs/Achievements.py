@@ -7,38 +7,53 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 from Config import PrintEx, ConnectToDatabase, GetSqlResult, GetUserSerial, sql_query
 import Config
-import datetime
+import time
 
 class Achivements(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-    """voice_channel_timers = {}
-    @tasks.loop(seconds=10)  # Check every 1 minute (you can adjust this interval)
-    async def check_voice_states(self):
+    
+    async def on_levelup(self, member: discord.Member, level: int):
         try:
-            for member_id, start_time in list(self.voice_channel_timers.items()):
-                member = self.bot.get_guild(Config.GUILD).get_member(member_id)
-                if not member:
-                    del self.voice_channel_timers[member_id]
-                    continue
+            PrintEx("Loading")
+            banner = Image.open("stuffs/LEVEL.png")
+            banner = banner.resize((1000, 240))
 
-                voice_state = member.voice
-                if not voice_state or not voice_state.channel:
-                    del self.voice_channel_timers[member_id]
-                    continue
+            async with aiohttp.ClientSession() as session:
+                async with session.get(str(member.avatar.url)) as rep:
+                    logo_data = await rep.read()
+            with open("stuffs/logo.png", "wb") as f:
+                f.write(logo_data)
+            
+            logo = Image.open("stuffs/logo.png").convert('RGBA')
+            logo = logo.resize((200, 200))
+            bigsize = (logo.size[0] * 3, logo.size[1] * 3)
+            mask = Image.new("L", bigsize, 0)
 
-                end_time = datetime.datetime.now()
-                time_spent = end_time - start_time
-                minutes_spent = time_spent.total_seconds() / 60
-                await member.send(f"You have spent {minutes_spent:.2f} minutes in the voice channel.")
-                print(f"{minutes_spent:.2f}")   
+            draw = ImageDraw.Draw(mask)
+            draw.ellipse((0, 0) + bigsize, 255)
+
+            mask = mask.resize(logo.size)
+            logo.putalpha(mask)
+
+            banner.paste(logo, (20, 20), mask=logo)
+            #Image Output
+            buffer_output = io.BytesIO()
+            banner.save(buffer_output, format='PNG')
+            buffer_output.seek(0)
+            channel = self.bot.get_channel(Config.LEVEL_UP)
+            embed = discord.Embed(color= 0X850fbd, title= "Level up", description=f"Congratulations {member.display_name}, you have reached level {level}")
+            image = discord.File(buffer_output, "level.png")
+            embed.set_image(url="attachment://level.png")
+            await channel.send(content=f"{member.mention}", embed= embed, file= image)
         except Exception as e:
-            print(e)"""
-        
+            PrintEx(e)
+        return True
+
+
     @commands.Cog.listener()
     async def on_ready(self):
         ConnectToDatabase()
-        self.check_voice_states.start()
         return True
     
     @commands.Cog.listener()
@@ -65,44 +80,82 @@ class Achivements(commands.Cog):
                 level = 0
                 xp = 0
             messages += 1
-
+            channel = self.bot.get_channel(Config.ACHIVEMENT)
             if messages == 5:
-                channel = self.bot.get_channel(Config.ACHIVEMENT)
                 await channel.send(content=f"{message.author.mention} Hurrah! You made it!", file= discord.File(fp="Rank-Banner/trophy-2.png", filename="image.png"))
             elif messages == 60:
-                channel = self.bot.get_channel(Config.ACHIVEMENT)
                 await channel.send(content="Hurrah! You made it!", file= discord.File("Rank-Banner/trophy-3.png", filename= "image.png"))   
 
             elif messages == 100:
-                channel = self.bot.get_channel(Config.ACHIVEMENT)
                 await channel.send(content="Hurrah! You made it!", file= discord.File("Rank-Banner/trophy-9.png", filename= "image.png"))   
 
             if level < 5:
                 rand = int(len(message.content) / 25) + random.randint(1,2)
                 xp += rand
-                if xp >= 1000*(level+1):
-                    
-                    level += 1
-                sql_query(f"UPDATE users SET xp = {xp}, level = {level}, total_messages = {messages}  WHERE serial = {GetUserSerial(user.id)}")
             else:
                 rand = int(len(message.content) / 25) + random.randint(1,5)
                 xp += rand
-                if xp >= 1000*level:
-                    level += 1
-                sql_query(f"UPDATE users SET xp = {xp}, level = {level} WHERE serial = {GetUserSerial(user.id)}")
+            if xp >= 1000*(level+1):
+                level += 1
+                await self.on_levelup(message.author, level= level)
+                return
+            sql_query(f"UPDATE users SET xp = {xp}, level = {level}, total_messages = {messages}  WHERE serial = {GetUserSerial(user.id)}")
         except Exception as e:
             PrintEx(e)
         return True
-    
     @commands.Cog.listener()
-    async def on_voice_state_update(self, member: discord.Member, before, after):
+    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         try:
-            if before.channel != after.channel:
-                self.voice_channel_timers[member.id] = datetime.datetime.now()
-                print("Done")
-        except Exception as e:
-            print(e)
+            result = GetSqlResult(f"SELECT * FROM users WHERE user_id = {member.id}")
+            if not result:
+                sql_query(f"INSERT INTO `users` (`serial`, `guild_id`, `user_id`, `username`, `total_messages`, `total_voice`, `level`, `xp`) VALUES (NULL, '{member.guild.id}', '{member.id}', '{member.global_name}', '0', '0', '0', '0');")
+            
+            level = GetSqlResult(f"SELECT level FROM users WHERE serial = {GetUserSerial(member.id)}")
+            xp = GetSqlResult(f"SELECT xp FROM users WHERE serial = {GetUserSerial(member.id)}")
+            minutes = GetSqlResult(f"SELECT total_voice FROM users WHERE serial = {GetUserSerial(member.id)}")
 
+            try:
+                level = level[0][0]  # Access the first element of the first tuple
+                xp = xp[0][0]        # Access the first element of the first tuple
+                minutes = minutes[0][0]        # Access the first element of the first tuple
+            except IndexError:
+                level = 0
+                xp = 0
+                minutes = 0
+                
+            if before.channel != after.channel:
+                if before.channel is None:
+                    while member.voice and member.voice.channel == after.channel:
+                        if member.bot:
+                            break
+                        time.sleep(6)
+                        minutes += 6/60
+                        formatted_minutes = "{:.1f}".format(minutes)
+
+                        channel = self.bot.get_channel(Config.ACHIVEMENT)
+                        if formatted_minutes == 30.0:
+                            await channel.send(content=f"{member.mention} Hurrah! You made it!", file= discord.File(fp="Rank-Banner/trophy-5.png", filename="image.png"))
+                        elif formatted_minutes == 60.0:
+                            await channel.send(content=f"{member.mention} Hurrah! You made it!", file= discord.File(fp="Rank-Banner/trophy-3.png", filename="image.png"))
+                        elif formatted_minutes == 180.0:
+                            await channel.send(content=f"{member.mention} Hurrah! You made it!", file= discord.File(fp="Rank-Banner/trophy-1.png", filename="image.png"))
+                        elif formatted_minutes == 720.0:
+                            await channel.send(content=f"{member.mention} Hurrah! You made it!", file= discord.File(fp="Rank-Banner/trophy-6.png", filename="image.png"))
+                        elif formatted_minutes == 1440.0:
+                            await channel.send(content=f"{member.mention} Hurrah! You made it!", file= discord.File(fp="Rank-Banner/trophy-7.png", filename="image.png"))
+                            return
+                        
+                        if not member.voice.self_mute and not member.voice.self_deaf:
+                            xp += 1
+                        if xp >= 1000*(level+1):
+                            level += 1
+                            await self.on_levelup(member, level= level)
+                        sql_query(f"UPDATE users SET xp = {xp}, level = {level}, total_voice = {formatted_minutes}  WHERE serial = {GetUserSerial(member.id)}")
+                elif after.channel is None:
+                    return True
+        except Exception as e:
+            PrintEx(e)
+    
 
 
     @app_commands.command(name= "level", description= "Show user level")
@@ -212,6 +265,7 @@ class Achivements(commands.Cog):
             return True
         except Exception as e:
             PrintEx(e)
+
 
 async def setup(bot):
     await bot.add_cog(Achivements(bot))

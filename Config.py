@@ -5,23 +5,27 @@ STATUS_CHANNEL = 1158090355527401472
 VOICE = 1159054922206150727
 ACHIVEMENT = 1164799977072111676
 LEVEL_UP = 1164865261426450474
-HOSTNAME = "127.0.0.1"    #Database Hostname
-USERNAME = "root"         #Database Username
-PASSWORD = ""             #Database Password. Leave it empty("") if you didn't set any password
-DATABASE = "grobot"      #Database Name
+HOSTNAME = "51.79.173.175"    #Database Hostname
+USERNAME = "u109573_zbXY9HMzqS"         #Database Username
+PASSWORD = "Q1Yh.M@6QnK=AD+d1rykIJWL"             #Database Password. Leave it empty("") if you didn't set any password
+DATABASE = "s109573_gbot"      #Database Name
 
 #Functions
 from mysql import connector as sql 
 import time
-# TimeStamp
-time_ = time.localtime()
-timestamp = f"[{time_.tm_hour}:{time_.tm_min}:{time_.tm_sec}]       "
+
 
 def PrintEx(string: str):
+    # TimeStamp
+    time_ = time.localtime()
+    timestamp = f"[{time_.tm_hour}:{time_.tm_min}:{time_.tm_sec}]       "
     print(f"{timestamp}{string}")
     return True
 
 def write_log(log: str):
+    # TimeStamp
+    time_ = time.localtime()
+    timestamp = f"[{time_.tm_hour}:{time_.tm_min}:{time_.tm_sec}]       "
     """
     Log function. You can print and write any log in bot.log
     Ex: write_log("Bot Activated.") {First it write "Bot Activated" in the bot.log then it will print "Bot Activated" in the consol}
