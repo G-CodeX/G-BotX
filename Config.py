@@ -1,14 +1,14 @@
-TOKEN = "MTE1NzcwNzg0NTA1MjE0NTc2NQ.GHrTiY.kizZ6taUeKQ8aWKwetyo82LkguGqZZHPbp2ukw"
-LOG_PATH = "Client.log"
-GUILD = 1157531056438788119
-STATUS_CHANNEL = 1158090355527401472
-VOICE = 1159054922206150727
-ACHIVEMENT = 1164799977072111676
-LEVEL_UP = 1164865261426450474
-HOSTNAME = "51.79.173.175"    #Database Hostname
-USERNAME = "u109573_zbXY9HMzqS"         #Database Username
-PASSWORD = "Q1Yh.M@6QnK=AD+d1rykIJWL"             #Database Password. Leave it empty("") if you didn't set any password
-DATABASE = "s109573_gbot"      #Database Name
+TOKEN = ""
+LOG_PATH = ""
+GUILD = 
+STATUS_CHANNEL = 
+VOICE = 
+ACHIVEMENT = 
+LEVEL_UP = 
+HOSTNAME = ""    #Database Hostname
+USERNAME = ""         #Database Username
+PASSWORD = ""             #Database Password. Leave it empty("") if you didn't set any password
+DATABASE = ""      #Database Name
 
 #Functions
 from mysql import connector as sql 
